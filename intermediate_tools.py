@@ -1,0 +1,290 @@
+#######################
+# Agente Basico De IA #
+# Herramientas        #
+#######################
+
+# Importacion para el manejo de sistema
+import requests
+
+
+class IntermediateTools:
+
+    def __init__(self):
+        pass
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 1
+    # Consultar tipo de cambio
+    # API: Exchange Rate API
+    # --------------------------------------------------
+
+    def consultar_tipo_cambio_api(self, moneda: str):
+
+        print(
+            f"Herramienta consultar_tipo_cambio_api "
+            f"llamada con moneda: {moneda}"
+        )
+
+        if not moneda:
+            return "Error: Se requiere el código de la moneda."
+
+        url = (
+            f"https://open.er-api.com/v6/latest/"
+            f"{moneda.upper()}"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            datos = response.json()
+
+            # Obtener únicamente el cambio hacia quetzales
+            if "rates" in datos and "GTQ" in datos["rates"]:
+
+                return {
+                    "moneda_origen": moneda.upper(),
+                    "moneda_destino": "GTQ",
+                    "tipo_cambio": datos["rates"]["GTQ"]
+                }
+
+            return "ERROR: No se encontró el tipo de cambio."
+
+        except Exception as e:
+
+            print(
+                f"Error al consultar tipo de cambio: {e}"
+            )
+
+            return (
+                f"ERROR: No se pudo obtener el tipo "
+                f"de cambio para {moneda}"
+            )
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 2
+    # Producto Interno Bruto
+    # API: Banco Mundial
+    # --------------------------------------------------
+
+    def obtener_pib_api(
+        self,
+        pais: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_pib_api llamada "
+            f"con pais: {pais}"
+        )
+
+        indicador = "NY.GDP.MKTP.CD"
+
+        url = (
+            f"https://api.worldbank.org/v2/country/"
+            f"{pais}/indicator/{indicador}"
+            f"?date={anio_inicio}:{anio_fin}"
+            f"&format=json&per_page=100"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except Exception as e:
+
+            print(f"Error al obtener PIB: {e}")
+
+            return (
+                f"ERROR: No se pudo obtener el PIB "
+                f"para {pais}"
+            )
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 3
+    # PIB per capita
+    # API: Banco Mundial
+    # --------------------------------------------------
+
+    def obtener_pib_per_capita_api(
+        self,
+        pais: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_pib_per_capita_api "
+            f"llamada con pais: {pais}"
+        )
+
+        indicador = "NY.GDP.PCAP.CD"
+
+        url = (
+            f"https://api.worldbank.org/v2/country/"
+            f"{pais}/indicator/{indicador}"
+            f"?date={anio_inicio}:{anio_fin}"
+            f"&format=json&per_page=100"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except Exception as e:
+
+            print(f"Error al obtener PIB per capita: {e}")
+
+            return (
+                f"ERROR: No se pudo obtener el PIB "
+                f"per capita para {pais}"
+            )
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 4
+    # Inflación
+    # API: Banco Mundial
+    # --------------------------------------------------
+
+    def obtener_inflacion_api(
+        self,
+        pais: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_inflacion_api "
+            f"llamada con pais: {pais}"
+        )
+
+        indicador = "FP.CPI.TOTL.ZG"
+
+        url = (
+            f"https://api.worldbank.org/v2/country/"
+            f"{pais}/indicator/{indicador}"
+            f"?date={anio_inicio}:{anio_fin}"
+            f"&format=json&per_page=100"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except Exception as e:
+
+            print(f"Error al obtener inflación: {e}")
+
+            return (
+                f"ERROR: No se pudo obtener la inflación "
+                f"para {pais}"
+            )
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 5
+    # Deuda pública como porcentaje del PIB
+    # API: Banco Mundial
+    # --------------------------------------------------
+
+    def obtener_deuda_publica_api(
+        self,
+        pais: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_deuda_publica_api "
+            f"llamada con pais: {pais}"
+        )
+
+        indicador = "GC.DOD.TOTL.GD.ZS"
+
+        url = (
+            f"https://api.worldbank.org/v2/country/"
+            f"{pais}/indicator/{indicador}"
+            f"?date={anio_inicio}:{anio_fin}"
+            f"&format=json&per_page=100"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except Exception as e:
+
+            print(f"Error al obtener deuda pública: {e}")
+
+            return (
+                f"ERROR: No se pudo obtener la deuda "
+                f"pública para {pais}"
+            )
+
+
+    # --------------------------------------------------
+    # HERRAMIENTA 6
+    # Crecimiento anual del PIB
+    # API: Banco Mundial
+    # --------------------------------------------------
+
+    def obtener_crecimiento_pib_api(
+        self,
+        pais: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_crecimiento_pib_api "
+            f"llamada con pais: {pais}"
+        )
+
+        indicador = "NY.GDP.MKTP.KD.ZG"
+
+        url = (
+            f"https://api.worldbank.org/v2/country/"
+            f"{pais}/indicator/{indicador}"
+            f"?date={anio_inicio}:{anio_fin}"
+            f"&format=json&per_page=100"
+        )
+
+        try:
+
+            response = requests.get(url, timeout=30)
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except Exception as e:
+
+            print(f"Error al obtener crecimiento del PIB: {e}")
+
+            return (
+                f"ERROR: No se pudo obtener el crecimiento "
+                f"del PIB para {pais}"
+            )
