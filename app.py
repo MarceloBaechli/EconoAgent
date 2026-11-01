@@ -8,13 +8,10 @@ from basic_agent_basic_memory_intermediate_tools import (
     client,
     memory
 )
-from dotenv import dotenv_values
+load_dotenv()
 
-env_path = os.path.join(os.path.dirname(__file__), ".env")
-config = dotenv_values(env_path)
-
-supabase_url = config.get("SUPABASE_URL")
-supabase_key = config.get("SUPABASE_SECRET_KEY")
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SECRET_KEY")
 
 
 
