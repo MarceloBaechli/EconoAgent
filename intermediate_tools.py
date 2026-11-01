@@ -288,3 +288,174 @@ class IntermediateTools:
                 f"ERROR: No se pudo obtener el crecimiento "
                 f"del PIB para {pais}"
             )
+                # --------------------------------------------------
+    # HERRAMIENTA 7
+    # Balanza comercial bilateral
+    # API: UN Comtrade
+    # --------------------------------------------------
+
+    def obtener_balanza_comercial_bilateral_api(
+        self,
+        pais_reportante: str,
+        pais_socio: str,
+        anio_inicio: str,
+        anio_fin: str
+    ):
+
+        print(
+            f"Herramienta obtener_balanza_comercial_bilateral_api "
+            f"llamada con {pais_reportante} y {pais_socio}"
+        )
+
+        try:
+
+            # Obtener códigos numéricos M49 a partir de códigos ISO3
+            url_paises = (
+                "https://comtradeapi.un.org/files/v1/app/"
+                "reference/partnerAreas.json"
+            )
+
+            response_paises = requests.get(
+                url_paises,
+                timeout=30
+            )
+
+            response_paises.raise_for_status()
+
+            lista_paises = response_paises.json().get(
+                "results",
+                []
+            )
+
+            def buscar_codigo_m49(codigo_iso3):
+
+                codigo_iso3 = codigo_iso3.upper().strip()
+
+                for pais in lista_paises:
+
+                    iso3 = str(
+                        pais.get(
+                            "PartnerCodeIsoAlpha3",
+                            ""
+                        )
+                    ).strip().upper()
+
+                    if iso3 == codigo_iso3:
+                        return pais.get("PartnerCode")
+
+                return None
+
+            codigo_reportante = buscar_codigo_m49(
+                pais_reportante
+            )
+
+            codigo_socio = buscar_codigo_m49(
+                pais_socio
+            )
+
+            if codigo_reportante is None:
+                return (
+                    f"ERROR: No se encontró el país "
+                    f"{pais_reportante}"
+                )
+
+            if codigo_socio is None:
+                return (
+                    f"ERROR: No se encontró el país "
+                    f"{pais_socio}"
+                )
+
+            inicio = int(anio_inicio)
+            fin = int(anio_fin)
+
+            resultados = []
+
+            for anio in range(inicio, fin + 1):
+
+                url = (
+                    "https://comtradeapi.un.org/"
+                    "public/v1/preview/C/A/HS"
+                )
+
+                parametros = {
+                    "reporterCode": codigo_reportante,
+                    "partnerCode": codigo_socio,
+                    "period": str(anio),
+                    "cmdCode": "TOTAL",
+                    "flowCode": "X,M",
+                    "maxRecords": 500
+                }
+
+                response = requests.get(
+                    url,
+                    params=parametros,
+                    timeout=30
+                )
+
+                response.raise_for_status()
+
+                datos = response.json().get(
+                    "data",
+                    []
+                )
+
+                exportaciones = None
+                importaciones = None
+
+                for registro in datos:
+
+                    flujo = registro.get("flowCode")
+                    valor = registro.get("primaryValue")
+
+                    if valor is None:
+                        continue
+
+                    valor = float(valor)
+
+                    if flujo == "X":
+
+                        if exportaciones is None:
+                            exportaciones = 0
+
+                        exportaciones += valor
+
+                    elif flujo == "M":
+
+                        if importaciones is None:
+                            importaciones = 0
+
+                        importaciones += valor
+
+                if (
+                    exportaciones is not None
+                    and importaciones is not None
+                ):
+                    balanza = (
+                        exportaciones - importaciones
+                    )
+                else:
+                    balanza = None
+
+                resultados.append({
+                    "anio": str(anio),
+                    "exportaciones_usd": exportaciones,
+                    "importaciones_usd": importaciones,
+                    "balanza_comercial_usd": balanza
+                })
+
+            return {
+                "pais_reportante": pais_reportante.upper(),
+                "pais_socio": pais_socio.upper(),
+                "resultados": resultados
+            }
+
+        except Exception as e:
+
+            print(
+                f"Error al obtener balanza comercial: {e}"
+            )
+
+            return (
+                "ERROR: No se pudo obtener la "
+                "balanza comercial bilateral."
+            )

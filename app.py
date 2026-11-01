@@ -1,11 +1,27 @@
 from flask import Flask, render_template, request, jsonify
+import os
+from dotenv import load_dotenv
+from supabase import create_client
 
 from basic_agent_basic_memory_intermediate_tools import (
     process_response,
     client,
     memory
 )
+from dotenv import dotenv_values
 
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+config = dotenv_values(env_path)
+
+supabase_url = config.get("SUPABASE_URL")
+supabase_key = config.get("SUPABASE_SECRET_KEY")
+
+
+
+supabase = create_client(
+    supabase_url,
+    supabase_key
+)
 app = Flask(__name__)
 
 
@@ -33,6 +49,15 @@ def preguntar():
 
     memory.add("user", pregunta)
     memory.add("assistant", respuesta)
+
+    try:
+        supabase.table("consultas").insert({
+            "pregunta": pregunta,
+            "respuesta": respuesta
+        }).execute()
+
+    except Exception as e:
+        print(f"Error al guardar en Supabase: {e}")
 
     return jsonify({
         "respuesta": respuesta
