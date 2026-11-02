@@ -86,6 +86,13 @@ utiliza todas las herramientas necesarias.
 Cuando se comparen varios países o varios años,
 presenta los resultados de manera ordenada, preferiblemente en una tabla.
 
+Cuando presentes un indicador económico en una tabla, utiliza una sola unidad de medida.
+No repitas el mismo indicador en dos escalas o unidades diferentes.
+
+Para el PIB total, presenta los valores únicamente en USD miles de millones.
+Para porcentajes como inflación, crecimiento y deuda, utiliza porcentaje (%).
+Para balanza comercial, exportaciones e importaciones, utiliza USD millones cuando sea apropiado.
+
 Después de presentar los datos,
 da una explicación económica breve y clara.
 
